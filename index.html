@@ -1,2 +1,100 @@
+
 <!DOCTYPE html>
-   <html><head><title>zamft.com</title></head><body></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>zamft.com</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --card-bg: #ffffff;
+    --border: #e5e2dc;
+    --text-primary: #2b2a26;
+    --text-secondary: #6b675f;
+    --accent: #c96442;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .wrap {
+    max-width: 720px;
+    width: 100%;
+  }
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 40px;
+    color: var(--text-primary);
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 640px) {
+    .options { grid-template-columns: 1fr; }
+  }
+  a.card {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  a.card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: var(--text-primary);
+  }
+  .card p {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  .card .arrow {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Where would you like to go?</h1>
+    <div class="options">
+      <a class="card" href="https://www.linkedin.com/in/bradzamft/" target="_blank" rel="noopener">
+        <h2>Brad Zamft's LinkedIn Profile</h2>
+        <p>Brad Zamft is the founder and CEO of Heritable Agriculture, a company combining AI, environmentally-informed breeding, and gene editing to accelerate crop development. He conceived and led the project at X, Alphabet's "Moonshot Factory," before it spun out independently. Brad holds a PhD in Physics from UC Berkeley and completed postdoctoral research in synthetic biology at Harvard Medical School. He previously served as Chief Scientific Officer at TL Biolabs, focused on DNA diagnostics for cattle, and managed grant programs at the Bill & Melinda Gates Foundation and the U.S. Department of Energy's ARPA-E.</p>
+        <span class="arrow">View profile &#8594;</span>
+      </a>
+      <a class="card" href="https://www.zamfttutoring.com/" target="_blank" rel="noopener">
+        <h2>Zamft Tutoring</h2>
+        <p>Zamft Tutoring, founded and led by Brad's father, Hy Zamft, provides personalized academic support for students facing challenges that make traditional schooling difficult. With over 25 years of experience, its team of state-certified teachers offers homebound instruction and one-on-one tutoring tailored to each student's needs, including cases other agencies won't take. The practice partners closely with schools and families to keep students on track, building both skills and confidence. Based in South Salem, New York, Zamft Tutoring has helped generations of students overcome obstacles and reach their academic potential.</p>
+        <span class="arrow">Visit website &#8594;</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
