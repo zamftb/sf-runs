@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -1049,6 +1050,44 @@
                 [[37.705926205962896, -122.51385552808642], [37.809236934408545, -122.3779386933893]],
                 {}
             );
+        
+
+            if (navigator.geolocation) {
+                var youAreHereMarker_map_8c90405b547b344394b532b3d6b302bb = null;
+                var youAreHereCircle_map_8c90405b547b344394b532b3d6b302bb = null;
+                navigator.geolocation.watchPosition(
+                    function(position) {
+                        var lat = position.coords.latitude;
+                        var lng = position.coords.longitude;
+                        var accuracy = position.coords.accuracy;
+                        if (!youAreHereMarker_map_8c90405b547b344394b532b3d6b302bb) {
+                            youAreHereMarker_map_8c90405b547b344394b532b3d6b302bb = L.circleMarker([lat, lng], {
+                                radius: 8,
+                                color: "#1a73e8",
+                                fillColor: "#1a73e8",
+                                fillOpacity: 0.9,
+                                weight: 2
+                            }).addTo(map_8c90405b547b344394b532b3d6b302bb);
+                            youAreHereMarker_map_8c90405b547b344394b532b3d6b302bb.bindTooltip("You are here");
+                            youAreHereCircle_map_8c90405b547b344394b532b3d6b302bb = L.circle([lat, lng], {
+                                radius: accuracy,
+                                color: "#1a73e8",
+                                fillColor: "#1a73e8",
+                                fillOpacity: 0.08,
+                                weight: 1
+                            }).addTo(map_8c90405b547b344394b532b3d6b302bb);
+                        } else {
+                            youAreHereMarker_map_8c90405b547b344394b532b3d6b302bb.setLatLng([lat, lng]);
+                            youAreHereCircle_map_8c90405b547b344394b532b3d6b302bb.setLatLng([lat, lng]);
+                            youAreHereCircle_map_8c90405b547b344394b532b3d6b302bb.setRadius(accuracy);
+                        }
+                    },
+                    function(error) {
+                        console.warn("Geolocation error:", error.message);
+                    },
+                    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+                );
+            }
         
 </script>
 </html>
