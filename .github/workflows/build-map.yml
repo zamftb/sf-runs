@@ -1,0 +1,43 @@
+name: Build map
+
+# Runs automatically whenever a GPX file or one of the build scripts changes
+# on the main branch, and also lets you trigger it by hand from the Actions
+# tab (the "workflow_dispatch" line below) if you ever want to force a rebuild.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'activity_*.gpx'
+      - 'scripts/*.py'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install gpxpy folium shapely pyproj
+
+      - name: Regenerate map
+        run: |
+          cd scripts
+          python3 extract.py
+          python3 coverage.py
+          python3 generate_map.py
+
+      - name: Commit updated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html runs_overlay_map.html scripts/runs.json scripts/coverage.json
+          git diff --cached --quiet || git commit -m "Auto-regenerate map from GPX files [skip ci]"
+          git push
