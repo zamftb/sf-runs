@@ -1,4 +1,4 @@
-import json, os, colorsys, folium
+import json, os, colorsys, folium, datetime
 
 here = os.path.dirname(os.path.abspath(__file__))
 project_folder = os.path.dirname(here)  # Garmin Tracks folder, one level up
@@ -56,6 +56,14 @@ else:
 
 pct = est_unique_miles / sf_street_miles * 100
 
+# Most recent run + a "last updated" timestamp for the legend. `runs` is
+# sorted ascending by date (see extract.py), so the last entry is the most
+# recent run. The "last updated" date is just today's date wherever this
+# script executes - locally, or on GitHub Actions' server when the workflow
+# runs - so it reflects whenever the map was last regenerated.
+most_recent = runs[-1]
+last_updated = datetime.date.today().strftime("%b %d, %Y")
+
 stats_html = (
     f'<div style="position: fixed; top: 20px; right: 20px; z-index:9999; '
     f'background:white; padding:12px 16px; border:1px solid #999; border-radius:6px; '
@@ -63,7 +71,11 @@ stats_html = (
     f'<b>Total SF miles run:</b> {total_miles:.1f} mi<br>'
     f'<b>Unique SF miles run:</b> {est_unique_miles:.1f} mi<br>'
     f'<b>SF street miles:</b> {sf_street_miles:,.1f} mi<br>'
-    f'<b>Est. % of SF run:</b> {pct:.1f}%</div>'
+    f'<b>Est. % of SF run:</b> {pct:.1f}%'
+    f'<hr style="margin:8px 0; border-color:#ddd;">'
+    f'<b>Runs logged:</b> {n}<br>'
+    f'<b>Most recent run:</b> {most_recent["date"]} ({most_recent["miles"]:.1f} mi)<br>'
+    f'<b>Last updated:</b> {last_updated}</div>'
 )
 m.get_root().html.add_child(folium.Element(stats_html))
 
