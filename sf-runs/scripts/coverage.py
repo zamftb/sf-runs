@@ -1,5 +1,5 @@
 import json, os
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union, transform
 from pyproj import Transformer
 
@@ -7,6 +7,25 @@ from pyproj import Transformer
 here = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(here, "runs.json")) as f:
     runs = json.load(f)
+
+# Exclusion zones - same file/format as extract.py. Ground inside any zone
+# never counts toward unique street-mile coverage, even if a run's raw
+# points pass near/through it.
+zones_path = os.path.join(here, "excluded_zones.json")
+zone_polys = []
+if os.path.exists(zones_path):
+    with open(zones_path) as zf:
+        zones = json.load(zf)
+    zone_polys = [Polygon([(lon, lat) for lat, lon in z["polygon"]]) for z in zones]
+    print(f"loaded {len(zone_polys)} exclusion zone(s)")
+
+
+def in_any_zone(lat, lon):
+    if not zone_polys:
+        return False
+    pt = Point(lon, lat)
+    return any(poly.contains(pt) for poly in zone_polys)
+
 
 # UTM zone 10N - valid for the San Francisco area. If you ever adapt this
 # script for a different city, pick the correct UTM zone for that location.
@@ -17,9 +36,30 @@ for r in runs:
     pts = r["points"]
     if len(pts) < 2:
         continue
-    line = LineString([(lon, lat) for lat, lon in pts])
-    line_utm = transform(to_utm, line)
-    lines.append(line_utm)
+
+    if zone_polys and any(in_any_zone(lat, lon) for lat, lon in pts):
+        # Split into contiguous segments outside all exclusion zones so the
+        # buffer/union step never draws a "phantom" street across an
+        # excluded gap (which would otherwise inflate the unique-miles
+        # estimate).
+        segments = []
+        current = []
+        for lat, lon in pts:
+            if in_any_zone(lat, lon):
+                if len(current) >= 2:
+                    segments.append(current)
+                current = []
+            else:
+                current.append((lat, lon))
+        if len(current) >= 2:
+            segments.append(current)
+    else:
+        segments = [pts]
+
+    for seg_pts in segments:
+        line = LineString([(lon, lat) for lat, lon in seg_pts])
+        line_utm = transform(to_utm, line)
+        lines.append(line_utm)
 
 print("lines:", len(lines))
 

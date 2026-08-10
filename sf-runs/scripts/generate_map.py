@@ -13,6 +13,29 @@ center = [sum(all_lats)/len(all_lats), sum(all_lons)/len(all_lons)]
 
 m = folium.Map(location=center, zoom_start=13, control_scale=False, tiles="CartoDB Positron")
 
+# Exclusion zones (private property etc.) - drawn as grey, semi-transparent
+# polygons with a tooltip. Loading from excluded_zones.json means adding a
+# new zone there is enough to show up on the map; no code changes needed.
+# Drawn before the colored run polylines so a track that happens to skirt a
+# zone's edge still renders clearly on top of the grey overlay.
+zones_path = os.path.join(here, "excluded_zones.json")
+if os.path.exists(zones_path):
+    with open(zones_path) as f:
+        excluded_zones = json.load(f)
+else:
+    excluded_zones = []
+
+for zone in excluded_zones:
+    folium.Polygon(
+        locations=zone["polygon"],
+        color="#666666",
+        weight=1,
+        fill=True,
+        fill_color="#888888",
+        fill_opacity=0.45,
+        tooltip=zone.get("name", "Excluded zone"),
+    ).add_to(m)
+
 def color_for(i):
     # Hue sweeps 0-270 degrees (red to violet) across runs in date order,
     # skipping the last 90 degrees back to red so the first and last run
