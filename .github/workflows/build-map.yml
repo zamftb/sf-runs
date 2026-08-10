@@ -1,15 +1,16 @@
 name: Build map
 
-# Runs automatically whenever a GPX file or one of the build scripts changes
-# inside the sf-runs subfolder (that's the folder published at
-# zamft.com/sf-runs/ - the repo root is your separate personal homepage).
-# You can also trigger it by hand from the Actions tab (workflow_dispatch).
+# Runs automatically whenever a GPX file, one of the build scripts, or the
+# exclusion-zone list changes on the main branch, and also lets you trigger
+# it by hand from the Actions tab (the "workflow_dispatch" line below) if you
+# ever want to force a rebuild.
 on:
   push:
     branches: [main]
     paths:
       - 'sf-runs/activity_*.gpx'
       - 'sf-runs/scripts/*.py'
+      - 'sf-runs/scripts/excluded_zones.json'
   workflow_dispatch: {}
 
 permissions:
@@ -39,6 +40,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sf-runs/index.html sf-runs/runs_overlay_map.html sf-runs/scripts/runs.json sf-runs/scripts/coverage.json
+          git add sf-runs/index.html sf-runs/runs_overlay_map.html sf-runs/scripts/runs.json sf-runs/scripts/coverage.json sf-runs/scripts/excluded_zones.json
           git diff --cached --quiet || git commit -m "Auto-regenerate map from GPX files [skip ci]"
           git push
