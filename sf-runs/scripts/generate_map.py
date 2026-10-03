@@ -11,7 +11,13 @@ all_lats = [lat for r in runs for lat, lon in r["points"]]
 all_lons = [lon for r in runs for lat, lon in r["points"]]
 center = [sum(all_lats)/len(all_lats), sum(all_lons)/len(all_lons)]
 
-m = folium.Map(location=center, zoom_start=13, control_scale=False, tiles="CartoDB Positron")
+m = folium.Map(location=center, zoom_start=13, control_scale=False, tiles=None)
+folium.TileLayer(
+    tiles="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attr="Tiles &copy; Esri",
+    max_native_zoom=16,
+    max_zoom=19,
+).add_to(m)
 
 # Exclusion zones (private property etc.) - drawn as grey, semi-transparent
 # polygons with a tooltip. Loading from excluded_zones.json means adding a
