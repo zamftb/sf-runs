@@ -11,17 +11,37 @@ all_lats = [lat for r in runs for lat, lon in r["points"]]
 all_lons = [lon for r in runs for lat, lon in r["points"]]
 center = [sum(all_lats)/len(all_lats), sum(all_lons)/len(all_lons)]
 
-m = folium.Map(location=center, zoom_start=13, control_scale=False, tiles=None)
+m = folium.Map(location=center, zoom_start=13, control_scale=False, tiles=None, max_zoom=20)
 
-# Basemap: Esri World Light Gray (no API key). CARTO's Positron tiles started
-# returning "API KEY REQUIRED" watermarks, so they were replaced.
-folium.TileLayer(
-    tiles="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-    attr="Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
-    name="Esri Light Gray",
-    max_native_zoom=16,
-    max_zoom=19,
-).add_to(m)
+# Basemap: OpenFreeMap "Positron" vector tiles - same light-gray look as the
+# old CARTO Positron, but free with no API key, and vector-rendered so it stays
+# sharp at every zoom level. (CARTO started returning "API KEY REQUIRED"
+# watermarks in 2026.) Leaflet can't draw vector tiles itself, so this pulls in
+# MapLibre GL plus the small maplibre-gl-leaflet bridge.
+from branca.element import MacroElement
+from jinja2 import Template
+from folium.elements import JSCSSMixin
+
+
+class VectorBasemap(JSCSSMixin, MacroElement):
+    default_js = [
+        ("maplibre_gl_js", "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"),
+        ("maplibre_gl_leaflet", "https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js"),
+    ]
+    default_css = [
+        ("maplibre_gl_css", "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"),
+    ]
+    _template = Template("""
+        {% macro script(this, kwargs) %}
+        L.maplibreGL({
+            style: "https://tiles.openfreemap.org/styles/positron",
+            attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+        }).addTo({{ this._parent.get_name() }});
+        {% endmacro %}
+    """)
+
+
+VectorBasemap().add_to(m)
 
 # Exclusion zones (private property etc.) - drawn as grey, semi-transparent
 # polygons with a tooltip. Loading from excluded_zones.json means adding a
